@@ -1,0 +1,1 @@
+This folder contains files used for prototyping (versus files used in the actual game).

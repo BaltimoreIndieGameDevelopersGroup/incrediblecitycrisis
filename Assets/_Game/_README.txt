@@ -1,0 +1,1 @@
+This folder contains files specific to Baltimore Indie Gamers' Incredible City Crisis.
