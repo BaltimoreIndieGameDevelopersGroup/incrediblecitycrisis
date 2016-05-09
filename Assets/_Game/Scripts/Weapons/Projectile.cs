@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.Events;
 
 namespace BIG.IncredibleCityCrisis
 {
@@ -15,12 +15,15 @@ namespace BIG.IncredibleCityCrisis
         [Tooltip("Duration in seconds.")]
         public float duration = 1;
 
-        public UnityEngine.Events.UnityEvent onCollision = new UnityEngine.Events.UnityEvent();
+        public UnityEvent onFire = new UnityEvent();
+
+        public GameObjectEvent onCollision = new GameObjectEvent();
 
         public void Fire(Vector2 velocity)
         {
             var rb2d = GetComponent<Rigidbody2D>();
             if (rb2d != null) rb2d.AddForce(velocity);
+            onFire.Invoke();
             Invoke("Despawn", duration);
         }
 
@@ -31,9 +34,9 @@ namespace BIG.IncredibleCityCrisis
 
         protected virtual void OnCollisionEnter2D(Collision2D coll)
         {
-            Debug.Log("Collision with: " + coll.collider.name);
+            Debug.Log(name + " collided with " + coll.collider.name);
             Despawn();
-            onCollision.Invoke();
+            onCollision.Invoke(coll.gameObject);
         }
 
     }

@@ -1,37 +1,54 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace BIG.IncredibleCityCrisis
 {
 
     /// <summary>
-    /// This component sets the character's primary attack input at a
-    /// regular interval.
+    /// This component is a prototype turret. Enemies can enter it and fire.
+    /// The turret automatically ejects the player after a specified duration.
     /// </summary>
-    public class Turret : MonoBehaviour
+    public class Turret : Body
     {
 
-        [Tooltip("Do the primary attack at this frequency in seconds.")]
-        public float fireRate = 5;
+        public string requiredTag = "Enemy";
 
-        private VirtualController m_controller;
+        public float automaticEjectTime = 5;
 
-        private void Awake()
+        public bool m_isAvailable = true;
+        private GameObject m_user = null;
+
+        private void OnTriggerEnter2D(Collider2D other)
         {
-            m_controller = GetComponent<VirtualController>();
+            if (m_isAvailable && !string.IsNullOrEmpty(requiredTag) && other.CompareTag(requiredTag))
+            {
+                var body = other.GetComponent<Body>();
+                if (body != null && body.player != null)
+                {
+                    m_isAvailable = false;
+                    body.player.PossessBody(this.gameObject);
+                    m_user = body.gameObject;
+                    body.gameObject.SetActive(false);
+                    Invoke("Eject", automaticEjectTime);
+                }
+            }
         }
 
-        private IEnumerator Start()
+        public override void OnDetachPlayer()
         {
-            // Run a continuous coroutine that sets the controller's primary attack
-            // input true for 1 frame when the fire rate duration has passed.
-            while (true)
-            {
-                yield return new WaitForSeconds(fireRate);
-                m_controller.primaryAttack = true;
-                yield return null;
-                m_controller.primaryAttack = false;
-            }
+            Eject();
+            Invoke("BecomeAvailable", 2);
+            base.OnDetachPlayer();
+        }
+
+        public void Eject()
+        {
+            if (player != null) player.PossessBody(m_user);
+
+        }
+
+        private void BecomeAvailable()
+        {
+            m_isAvailable = true;
         }
 
     }

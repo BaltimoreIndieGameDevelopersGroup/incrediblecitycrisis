@@ -5,11 +5,9 @@ namespace BIG.IncredibleCityCrisis
 {
 
     /// <summary>
-    /// This component shoots projectiles when its parent's controller
-    /// indicates a primary attack input. Add it to a child of the
-    /// character, such as its hand.
+    /// This attachment shoots projectiles it's attached to a character.
     /// </summary>
-    public class ProjectileShooter : MonoBehaviour
+    public class ProjectileShooter : Attachment
     {
 
         [Tooltip("Instantiate this prefab when firing.")]
@@ -22,26 +20,40 @@ namespace BIG.IncredibleCityCrisis
         [Tooltip("The force with which to launch the projectile.")]
         public float force = 500f;
 
-        private VirtualController m_controller;
-        private BasicCharacter2D m_character;
+        private VirtualInput m_input;
+        private Movement m_movement;
+
+        public void OnAttachPlayer(Player player)
+        {
+            m_input = player.virtualInput;
+            m_movement = GetComponentInParent<Movement>();
+        }
+
+        public void OnDetachPlayer()
+        {
+            m_input = null;
+            m_movement = null;
+        }
 
         protected virtual void Awake()
         {
-            m_controller = GetComponentInParent<VirtualController>();
-            m_character = GetComponentInParent<BasicCharacter2D>();
-            if (m_controller == null) Debug.LogError("No VirtualController found on parent of " + name, this);
-            if (m_character == null) Debug.LogError("No BasicCharacter2D found on parent of " + name, this);
+            m_input = GetComponentInParent<VirtualInput>();
+            m_movement = GetComponentInParent<Movement>();
             if (spawnPoint == null) spawnPoint = this.transform;
         }
 
         void Update()
         {
-            if (m_controller.primaryAttack)
+            if (m_input != null)
             {
-                var projectileGameObject = Instantiate(projectilePrefab, spawnPoint.position, spawnPoint.rotation) as GameObject;
-                var projectile = projectileGameObject.GetComponent<Projectile>();
-                var velocity = force * ((m_controller.move.magnitude > 0.1f) ? m_controller.move : new Vector2(m_character.facingLeft ? -1 : 1, 0));
-                projectile.Fire(velocity);
+                if (m_input.primaryAttack)
+                {
+                    var projectileGameObject = Instantiate(projectilePrefab, spawnPoint.position, spawnPoint.rotation) as GameObject;
+                    var projectile = projectileGameObject.GetComponent<Projectile>();
+                    var facingLeft = (m_movement != null) ? m_movement.facingLeft : false;
+                    var velocity = force * ((m_input.move.magnitude > 0.1f) ? m_input.move : new Vector2(facingLeft ? -1 : 1, 0));
+                    projectile.Fire(velocity);
+                }
             }
         }
     }
