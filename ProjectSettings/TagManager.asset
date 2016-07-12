@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Hero
+  - Enemy
+  - Usable
   layers:
   - Default
   - TransparentFX
@@ -13,11 +16,11 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Hero Hitbox
+  - Enemy Hitbox
+  - Hurt Hero
+  - Hurt Enemy
+  - Hurt All
   - 
   - 
   - 
