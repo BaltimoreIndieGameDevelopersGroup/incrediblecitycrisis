@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Hero
   - Enemy
+  - Usable
   layers:
   - Default
   - TransparentFX
@@ -15,11 +16,11 @@ TagManager:
   - UI
   - 
   - 
-  - Hitbox
-  - Projectile
-  - 
-  - 
-  - 
+  - Hero Hitbox
+  - Enemy Hitbox
+  - Hurt Hero
+  - Hurt Enemy
+  - Hurt All
   - 
   - 
   - 

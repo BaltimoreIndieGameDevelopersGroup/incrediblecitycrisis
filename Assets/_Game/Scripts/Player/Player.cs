@@ -5,76 +5,53 @@ namespace BIG.IncredibleCityCrisis
 
 
     /// <summary>
-    /// Manages player input (controller) and output (HUD) and attaching bodies (characters) to players.
+    /// Manages data about a player's input, display, and current Body.
+    /// The player's body can change between the hero, enemy, and other 
+    /// bodies that the enemy can possess or change into.
     /// </summary>
     public class Player : MonoBehaviour
     {
 
-        public GameObject heroPrefab;
+        [Tooltip("This player's player number.")]
+        public int playerNumber;
 
-        public GameObject enemyPrefab;
+        [Tooltip("This player's hero prefab.")]
+        public Body heroPrefab;
 
-        public GameObject body;
-
-        public PlayerHUD hud { get; private set; }
+        [Tooltip("This player's enemy prefab.")]
+        public Body enemyPrefab;
 
         public VirtualInput virtualInput { get; private set; }
 
         public PlayerInput playerInput { get; private set; }
 
+        public PlayerDisplay display { get; private set; }
+
+        public Body currentBody { get; private set; }
+
         private void Awake()
         {
-            hud = GetComponent<PlayerHUD>();
             virtualInput = GetComponent<VirtualInput>();
             playerInput = GetComponent<PlayerInput>();
+            display = GetComponent<PlayerDisplay>();
         }
 
         private void Start()
         {
-            PossessBody(body);
-        }
-
-        public void PossessBody(GameObject newBody)
-        {
-            if (body != null)
+            if (playerNumber == GameManager.heroPlayerNumber)
             {
-                ReleaseBody();
+                BecomeHero();
             }
-            if (newBody != null)
+            else
             {
-                Debug.Log(name + " possessing body " + newBody);
-                body = newBody;
-                body.SetActive(true);
-                body.BroadcastMessage("OnAttachPlayer", this);
+                BecomeEnemy();
             }
-        }
-
-        public void ReleaseBody()
-        {
-            if (body != null)
-            {
-                Debug.Log(name + " releasing body");
-                var oldBody = body;
-                body = null;
-                oldBody.BroadcastMessage("OnDetachPlayer");
-            }
-        }
-
-        public void SpawnBody(GameObject prefab)
-        {
-            var oldBody = body;
-            var newBody = Instantiate(prefab, oldBody.transform.position, Quaternion.identity) as GameObject;
-            PossessBody(newBody);
-            Destroy(oldBody);
         }
 
         public void BecomeHero()
         {
             Debug.Log(name + " becoming hero");
-            if (!body.CompareTag("Enemy"))
-            {
-                ReleaseBody();
-            }
+            ReleaseTemporaryBody();
             SpawnBody(heroPrefab);
         }
 
@@ -84,7 +61,96 @@ namespace BIG.IncredibleCityCrisis
             SpawnBody(enemyPrefab);
         }
 
+        public void SpawnBody(Body prefab)
+        {
+            var spawnPosition = GetSpawnPosition(prefab);
+            if (currentBody != null)
+            {
+                Destroy(currentBody.gameObject);
+                currentBody = null;
+            }
+            var newBody = Instantiate(prefab, spawnPosition, Quaternion.identity) as Body;
+            newBody.name = prefab.name + " Player " + playerNumber;
+            PossessBody(newBody);
+        }
 
+        private Vector3 GetSpawnPosition(Body prefab)
+        {
+            if (currentBody != null)
+            {
+                // Spawn at our current (old) body's position:
+                return currentBody.transform.position;
+            }
+            else
+            {
+                // If no current body, spawn at the start position:
+                var startPositions = FindObjectOfType<StartPositions>();
+                return prefab.CompareTag(Tags.Hero) ? startPositions.heroPosition.position
+                    : startPositions.EnemyPosition(playerNumber);
+            }
+        }
+
+        public void PossessBody(Body newBody)
+        {
+            if (currentBody != null)
+            {
+                ReleaseBody();
+            }
+            if (newBody != null)
+            {
+                Debug.Log(name + " possessing currentBody " + newBody);
+                currentBody = newBody;
+                currentBody.gameObject.SetActive(true);
+                currentBody.BroadcastMessage(Messages.OnAttachPlayer, this);
+            }
+        }
+
+        public void ReleaseBody()
+        {
+            if (currentBody != null)
+            {
+                Debug.Log(name + " releasing currentBody");
+                var oldBody = currentBody;
+                currentBody = null;
+                oldBody.BroadcastMessage(Messages.OnDetachPlayer);
+            }
+        }
+
+        public void ReleaseTemporaryBody()
+        {
+            if (currentBody != null && !currentBody.CompareTag(Tags.Hero) && !currentBody.CompareTag(Tags.Enemy))
+            {
+                ReleaseBody();
+                if (currentBody == null) BecomeEnemy();
+            }
+        }
+
+        public void BodyDied(int killerPlayerNumber)
+        {
+            Debug.Log(name + " body (" + currentBody + ") was killed by player " + killerPlayerNumber);
+            if (currentBody.CompareTag(Tags.Hero))
+            {
+                PromoteNewHero(killerPlayerNumber);
+            }
+            else
+            {
+                BecomeEnemy();
+            }
+        }
+
+        private void PromoteNewHero(int killerPlayerNumber)
+        {
+            foreach (var otherPlayer in FindObjectsOfType<Player>())
+            {
+                if (otherPlayer.playerNumber == killerPlayerNumber)
+                {
+                    otherPlayer.BecomeHero();
+                    BecomeEnemy();
+                    return;
+                }
+            }
+            BecomeHero();
+        }
 
     }
 }

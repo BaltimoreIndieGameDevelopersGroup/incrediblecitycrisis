@@ -110,6 +110,7 @@ GameObject:
   - 58: {fileID: 5823264}
   - 114: {fileID: 11449414}
   - 114: {fileID: 11450512}
+  - 114: {fileID: 11473318}
   - 114: {fileID: 11478804}
   - 114: {fileID: 11484270}
   m_Layer: 0
@@ -439,10 +440,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 137444}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d885009f1d49b964595ed974711cfb5e, type: 3}
+  m_Script: {fileID: 11500000, guid: 10f44dd39fbd1924a85dc194060acd2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
 --- !u!114 &11450512
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -457,6 +457,17 @@ MonoBehaviour:
   maxHorizontalSpeed: 8
   maxVerticalSpeed: 5
   facingLeft: 1
+--- !u!114 &11473318
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 137444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c97f961bec2be747afdd6960ed4f839, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &11478804
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -482,7 +493,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   move: {x: 0, y: 0}
-  primaryAttack: 0
+  useDown: 0
+  primaryAttackDown: 0
+  primaryAttackHeld: 0
 --- !u!212 &21207500
 SpriteRenderer:
   m_ObjectHideFlags: 1

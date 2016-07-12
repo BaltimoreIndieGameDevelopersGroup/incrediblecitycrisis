@@ -4,18 +4,21 @@ namespace BIG.IncredibleCityCrisis
 {
 
     /// <summary>
-    /// This component is a prototype turret. Enemies can enter it and fire.
-    /// The turret automatically ejects the player after a specified duration.
+    /// Prototype turret. Enemies can enter it and fire, or press the Use button
+    /// to exit.
     /// </summary>
     public class Turret : Body
     {
 
-        public string requiredTag = "Enemy";
+        public string requiredTag = Tags.Enemy;
+
+        public bool automaticEject = false;
 
         public float automaticEjectTime = 5;
 
-        public bool m_isAvailable = true;
-        private GameObject m_user = null;
+        private bool m_isAvailable = true;
+
+        private Body m_user = null;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -25,11 +28,19 @@ namespace BIG.IncredibleCityCrisis
                 if (body != null && body.player != null)
                 {
                     m_isAvailable = false;
-                    body.player.PossessBody(this.gameObject);
-                    m_user = body.gameObject;
+                    body.player.PossessBody(this);
+                    m_user = body;
                     body.gameObject.SetActive(false);
-                    Invoke("Eject", automaticEjectTime);
+                    if (automaticEject) Invoke("Eject", automaticEjectTime);
                 }
+            }
+        }
+
+        private void Update()
+        {
+            if (player != null && player.virtualInput.useDown)
+            {
+                Eject();
             }
         }
 
@@ -43,7 +54,6 @@ namespace BIG.IncredibleCityCrisis
         public void Eject()
         {
             if (player != null) player.PossessBody(m_user);
-
         }
 
         private void BecomeAvailable()

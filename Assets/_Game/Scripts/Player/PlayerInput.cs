@@ -4,7 +4,7 @@ namespace BIG.IncredibleCityCrisis
 {
 
     /// <summary>
-    /// This component sets a VirtualInput component with inputs from a real player input device.
+    /// Sets a VirtualInput component with inputs from a physical input device.
     /// </summary>
     [RequireComponent(typeof(VirtualInput))]
     public class PlayerInput : MonoBehaviour
@@ -12,7 +12,8 @@ namespace BIG.IncredibleCityCrisis
 
         public string horizontalAxis = "Horizontal";
         public string verticalAxis = "Vertical";
-        public string primaryFire = "Fire1";
+        public string use = "Fire2";
+        public string primaryAttack = "Fire1";
 
         private VirtualInput m_virtualInput;
 
@@ -25,7 +26,9 @@ namespace BIG.IncredibleCityCrisis
         void Update()
         {
             m_virtualInput.move = new Vector2(Input.GetAxis(horizontalAxis), Input.GetAxis(verticalAxis));
-            m_virtualInput.primaryAttack = Input.GetButtonDown(primaryFire);
+            m_virtualInput.useDown = Input.GetButtonDown(use);
+            m_virtualInput.primaryAttackDown = Input.GetButtonDown(primaryAttack);
+            m_virtualInput.primaryAttackHeld = Input.GetButton(primaryAttack);
         }
     }
 }
