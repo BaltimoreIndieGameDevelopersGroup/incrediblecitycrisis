@@ -20,10 +20,15 @@ namespace BIG.IncredibleCityCrisis
 
         public float teleportSeconds = 0.5f;
 
+        private static float timeNextExitAllowed = 0;
+
         private IEnumerator OnTriggerEnter2D(Collider2D other)
         {
-            if (other.CompareTag(Tags.Hero))
+            if ((Time.time >= timeNextExitAllowed) && other.CompareTag(Tags.Survivor))
             {
+                // Prevent hopping between rooms too quickly:
+                timeNextExitAllowed = Time.time + 1f;
+
                 // Teleport to the destination.
 
                 // Make all enemies regular (leave turrets, mechs, etc.) and 
@@ -31,8 +36,8 @@ namespace BIG.IncredibleCityCrisis
                 var players = FindObjectsOfType<Player>();
                 foreach (var player in players)
                 {
-                    player.ReleaseTemporaryBody();
-                    var collider2D = player.currentBody.GetComponent<Collider2D>();
+                    //player.ReleaseTemporaryBody();
+                    var collider2D = player.body.GetComponent<Collider2D>();
                     if (collider2D != null) collider2D.enabled = false;
                 }
 
@@ -42,21 +47,29 @@ namespace BIG.IncredibleCityCrisis
                 var originalPlayerPositions = new Vector3[players.Length];
                 for (int i = 0; i < players.Length; i++)
                 {
-                    originalPlayerPositions[i] = players[i].currentBody.transform.position;
+                    originalPlayerPositions[i] = players[i].body.transform.position;
                 }
 
+                // Teleport hero center of mass:
+                FindObjectOfType<Hero>().transform.position = heroPosition.position;
+
                 // Lerp to new positions:
+                var survivors = GameObject.FindObjectsOfType<Survivor>();
                 float elapsed = 0;
                 while (elapsed < teleportSeconds)
                 {
                     var t = elapsed / teleportSeconds;
                     Camera.main.transform.position = Vector3.Lerp(originalCameraPosition, cameraPosition.position, t);
-                    other.transform.position = Vector3.Lerp(originalHeroPosition, heroPosition.position, t);
+                    //other.transform.position = Vector3.Lerp(originalHeroPosition, heroPosition.position, t);
+                    for (int i = 0; i < survivors.Length; i++)
+                    {
+                        survivors[i].transform.position = Vector3.Lerp(originalHeroPosition, heroPosition.position, t);
+                    }
                     for (int i = 0; i < players.Length; i++)
                     {
-                        if (players[i].currentBody.CompareTag(Tags.Enemy))
+                        if (players[i].body.CompareTag(Tags.Enemy))
                         {
-                            players[i].currentBody.transform.position = Vector3.Lerp(originalPlayerPositions[i], GetEnemyPosition(players[i].playerNumber), t);
+                            players[i].body.transform.position = Vector3.Lerp(originalPlayerPositions[i], GetEnemyPosition(players[i].playerNumber), t);
                         }
                     }
                     yield return null;
@@ -66,8 +79,11 @@ namespace BIG.IncredibleCityCrisis
                 // Re-enable player body colliders:
                 foreach (var player in players)
                 {
-                    var collider2D = player.currentBody.GetComponent<Collider2D>();
-                    if (collider2D != null) collider2D.enabled = true;
+                    if (!player.body.CompareTag(Tags.Hero)) // Hero doesn't use a collider.
+                    {
+                        var collider2D = player.body.GetComponent<Collider2D>();
+                        if (collider2D != null) collider2D.enabled = true;
+                    }
                 }
             }
         }

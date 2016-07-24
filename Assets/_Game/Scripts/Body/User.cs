@@ -14,13 +14,7 @@ namespace BIG.IncredibleCityCrisis
 
         private VirtualInput m_input = null;
 
-        public virtual void OnAttachPlayer(Player player)
-        {
-            m_input = player.virtualInput;
-            m_currentUsable = null;
-        }
-
-        public void OnDetachPlayer()
+        private void Awake()
         {
             m_input = GetComponent<VirtualInput>();
         }
@@ -48,7 +42,7 @@ namespace BIG.IncredibleCityCrisis
             if ((m_input != null) && m_input.useDown && (m_currentUsable != null))
             {
                 // Player hit Use input, so use the Usable:
-                m_currentUsable.UseBy(this.gameObject);
+                m_currentUsable.UseBy(GetComponent<Body>());
                 m_currentUsable = null;
             }
         }

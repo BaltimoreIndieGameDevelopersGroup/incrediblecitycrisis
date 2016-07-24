@@ -19,14 +19,18 @@ namespace BIG.IncredibleCityCrisis
 
         public UnityEvent onDetach = new UnityEvent();
 
+        public virtual void AttachToBody(Body body) { }
+
+        public virtual void DetachFromBody(Body body) { }
+
         /// <summary>
-        /// Called when a character uses this Attachment. Attaches to the character's
+        /// Called when a Body uses this Attachment. Attaches to the Body's
         /// corresponding attachment point.
         /// </summary>
-        /// <param name="character">The character to attach the </param>
-        public override void UseBy(GameObject user)
+        /// <param name="body">The body to attach to.</param>
+        public override void UseBy(Body body)
         {
-            foreach (var attachmentPoint in user.GetComponentsInChildren<AttachmentPoint>())
+            foreach (var attachmentPoint in body.GetComponentsInChildren<AttachmentPoint>())
             { 
                 if (attachmentPoint.location == attachmentLocation)
                 {
@@ -44,12 +48,7 @@ namespace BIG.IncredibleCityCrisis
                     transform.localRotation = Quaternion.identity;
                     transform.localScale = Vector3.one;
 
-                    // Tell the attachment that it has a player.
-                    var body = attachmentPoint.GetComponentInParent<Body>();
-                    if ((body != null) && (body.player != null))
-                    {
-                        SendMessage(Messages.OnAttachPlayer, body.player, SendMessageOptions.DontRequireReceiver);
-                    }
+                    AttachToBody(body);
 
                     // Invoke the onAttach event, which designers can use to run extra
                     // actions such as playing audio or animation:
@@ -60,12 +59,7 @@ namespace BIG.IncredibleCityCrisis
 
         public void Detach()
         {
-            // Tell the attachment that it no longer has a player.
-            var body = GetComponentInParent<Body>();
-            if ((body != null) && (body.player != null))
-            {
-                SendMessage(Messages.OnDetachPlayer, SendMessageOptions.DontRequireReceiver);
-            }
+            DetachFromBody(GetComponentInParent<Body>());
 
             // Unparent the attachment:
             transform.SetParent(null);

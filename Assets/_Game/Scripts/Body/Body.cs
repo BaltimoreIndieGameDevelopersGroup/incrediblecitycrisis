@@ -12,17 +12,17 @@ namespace BIG.IncredibleCityCrisis
 
         public Player player { get; private set; }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             player = null;
         }
 
-        public virtual void OnAttachPlayer(Player newPlayer)
+        public virtual void OnAttachPlayer(PlayerBodyConnection connection)
         {
-            player = newPlayer;
+            player = connection.player;
         }
 
-        public virtual void OnDetachPlayer()
+        public virtual void OnDetachPlayer(PlayerBodyConnection connection)
         {
             player = null;
             var rb = GetComponent<Rigidbody2D>();

@@ -21,32 +21,33 @@ namespace BIG.IncredibleCityCrisis
         public UnityEvent onPowerDown = new UnityEvent();
         public UnityEvent onIdle = new UnityEvent();
 
-        protected Player m_player;
-        protected VirtualInput m_input;
+        protected VirtualInput m_virtualInput;
         protected Movement m_movement;
         protected enum WeaponState { Idle, PoweringUp, PoweringDown }
         protected WeaponState m_weaponState;
         protected float m_secondsLeft;
 
-        public virtual void OnAttachPlayer(Player player)
+        protected virtual void Awake()
         {
-            m_player = player;
-            m_input = player.virtualInput;
+            m_virtualInput = GetComponentInParent<VirtualInput>();
             m_movement = GetComponentInParent<Movement>();
-            m_weaponState = WeaponState.Idle;
         }
 
-        public virtual void OnDetachPlayer()
+        public void OnAttachPlayer(PlayerBodyConnection connection)
         {
-            m_player = null;
-            m_input = null;
-            m_movement = null;
+            m_virtualInput = (connection.body != null) ? connection.body.GetComponent<VirtualInput>() : null;
+            m_movement = (connection.body != null) ? connection.body.GetComponent<Movement>() : null;
+        }
+
+        public void OnDetachPlayer(PlayerBodyConnection connection)
+        {
+            m_virtualInput = null;
         }
 
         void Update()
         {
-            if (m_input == null) return;
-            if (m_input.primaryAttackHeld)
+            if (m_virtualInput == null) return;
+            if (m_virtualInput.primaryAttackHeld)
             {
                 switch (m_weaponState)
                 {
@@ -97,10 +98,10 @@ namespace BIG.IncredibleCityCrisis
 
         public Vector3 fireDirection
         {
-            get // The direction of fire is the same as the direction of movement.
+            get // The direction of fire is the same as the direction of movement/facing.
             {
                 var facingLeft = (m_movement != null) ? m_movement.facingLeft : false;
-                return ((m_input.move.magnitude > 0.1f) ? m_input.move : new Vector2(facingLeft ? -1 : 1, 0)).normalized;
+                return ((m_virtualInput.move.magnitude > 0.1f) ? m_virtualInput.move : new Vector2(facingLeft ? -1 : 1, 0)).normalized;
             }
         }
 

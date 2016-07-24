@@ -11,10 +11,10 @@
     public static class Messages
     {
 
-        // OnAttachPlayer(Player): Called when a Player attaches to a Body.
-        public const string OnAttachPlayer = "OnAttachPlayer"; 
+        // OnAttachPlayer(PlayerBodyConnection): Called on Player & Body when a Player attaches to a Body.
+        public const string OnAttachPlayer = "OnAttachPlayer";
 
-        // OnDetachPlayer(): Called when a Player detaches from a Body.
+        // OnDetachPlayer(PlayerBodyConnection): Called when a Player detaches from a Body.
         public const string OnDetachPlayer = "OnDetachPlayer";
 
         // OnTakeDamage(DamageInfo): Called when a GameObject takes damage.
@@ -23,7 +23,7 @@
         // OnHealthChange(float): Called when something gains or loses health.
         public const string OnHealthChange = "OnHealthChange";
 
-        // OnDie(int fromPlayerNumber): Called when a body is killed.
+        // OnDie(int killedByPlayerNumber): Called when a body is killed.
         public const string OnDie = "OnDie";
 
     }

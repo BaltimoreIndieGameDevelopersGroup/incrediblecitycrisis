@@ -5,9 +5,8 @@ namespace BIG.IncredibleCityCrisis
 
 
     /// <summary>
-    /// Manages data about a player's input, display, and current Body.
-    /// The player's body can change between the hero, enemy, and other 
-    /// bodies that the enemy can possess or change into.
+    /// Manages data about a player's input and display.
+    /// Spawns a body.
     /// </summary>
     public class Player : MonoBehaviour
     {
@@ -15,71 +14,51 @@ namespace BIG.IncredibleCityCrisis
         [Tooltip("This player's player number.")]
         public int playerNumber;
 
-        [Tooltip("This player's hero prefab.")]
         public Body heroPrefab;
+        public Body shooterEnemyPrefab;
 
-        [Tooltip("This player's enemy prefab.")]
-        public Body enemyPrefab;
-
-        public VirtualInput virtualInput { get; private set; }
-
-        public PlayerInput playerInput { get; private set; }
-
-        public PlayerDisplay display { get; private set; }
-
-        public Body currentBody { get; private set; }
-
-        private void Awake()
-        {
-            virtualInput = GetComponent<VirtualInput>();
-            playerInput = GetComponent<PlayerInput>();
-            display = GetComponent<PlayerDisplay>();
-        }
+        public Body body { get; private set; }
 
         private void Start()
         {
             if (playerNumber == GameManager.heroPlayerNumber)
             {
-                BecomeHero();
+                SpawnBody(heroPrefab);
+                GetComponent<PlayerInput>().enabled = true;
             }
             else
             {
-                BecomeEnemy();
+                SpawnBody(shooterEnemyPrefab);
             }
-        }
-
-        public void BecomeHero()
-        {
-            Debug.Log(name + " becoming hero");
-            ReleaseTemporaryBody();
-            SpawnBody(heroPrefab);
-        }
-
-        public void BecomeEnemy()
-        {
-            Debug.Log(name + " becoming enemy");
-            SpawnBody(enemyPrefab);
         }
 
         public void SpawnBody(Body prefab)
         {
             var spawnPosition = GetSpawnPosition(prefab);
-            if (currentBody != null)
+            if (body != null)
             {
-                Destroy(currentBody.gameObject);
-                currentBody = null;
+                BroadcastPlayerBodyConnection(Messages.OnDetachPlayer, body);
+                Destroy(body.gameObject);
+                body = null;
             }
-            var newBody = Instantiate(prefab, spawnPosition, Quaternion.identity) as Body;
-            newBody.name = prefab.name + " Player " + playerNumber;
-            PossessBody(newBody);
+            body = Instantiate(prefab, spawnPosition, Quaternion.identity) as Body;
+            body.name = prefab.name + " Player " + playerNumber;
+            BroadcastPlayerBodyConnection(Messages.OnAttachPlayer, body);
+        }
+
+        private void BroadcastPlayerBodyConnection(string message, Body body)
+        {
+            var playerBodyConnection = new PlayerBodyConnection(this, body);
+            BroadcastMessage(message, playerBodyConnection);
+            body.BroadcastMessage(message, playerBodyConnection);
         }
 
         private Vector3 GetSpawnPosition(Body prefab)
         {
-            if (currentBody != null)
+            if (body != null)
             {
                 // Spawn at our current (old) body's position:
-                return currentBody.transform.position;
+                return body.transform.position;
             }
             else
             {
@@ -90,51 +69,12 @@ namespace BIG.IncredibleCityCrisis
             }
         }
 
-        public void PossessBody(Body newBody)
-        {
-            if (currentBody != null)
-            {
-                ReleaseBody();
-            }
-            if (newBody != null)
-            {
-                Debug.Log(name + " possessing currentBody " + newBody);
-                currentBody = newBody;
-                currentBody.gameObject.SetActive(true);
-                currentBody.BroadcastMessage(Messages.OnAttachPlayer, this);
-            }
-        }
-
-        public void ReleaseBody()
-        {
-            if (currentBody != null)
-            {
-                Debug.Log(name + " releasing currentBody");
-                var oldBody = currentBody;
-                currentBody = null;
-                oldBody.BroadcastMessage(Messages.OnDetachPlayer);
-            }
-        }
-
-        public void ReleaseTemporaryBody()
-        {
-            if (currentBody != null && !currentBody.CompareTag(Tags.Hero) && !currentBody.CompareTag(Tags.Enemy))
-            {
-                ReleaseBody();
-                if (currentBody == null) BecomeEnemy();
-            }
-        }
-
         public void BodyDied(int killerPlayerNumber)
         {
-            Debug.Log(name + " body (" + currentBody + ") was killed by player " + killerPlayerNumber);
-            if (currentBody.CompareTag(Tags.Hero))
+            Debug.Log(name + " body (" + body + ") was killed by player " + killerPlayerNumber);
+            if (body.CompareTag(Tags.Hero))
             {
                 PromoteNewHero(killerPlayerNumber);
-            }
-            else
-            {
-                BecomeEnemy();
             }
         }
 
@@ -142,15 +82,17 @@ namespace BIG.IncredibleCityCrisis
         {
             foreach (var otherPlayer in FindObjectsOfType<Player>())
             {
-                if (otherPlayer.playerNumber == killerPlayerNumber)
+                // Choose another player that's being played by a human:
+                if (otherPlayer != this && otherPlayer.GetComponent<PlayerInput>().enabled) //if (otherPlayer.playerNumber == killerPlayerNumber)
                 {
-                    otherPlayer.BecomeHero();
-                    BecomeEnemy();
+                    otherPlayer.SpawnBody(otherPlayer.heroPrefab);
+                    SpawnBody(shooterEnemyPrefab);
                     return;
                 }
             }
-            BecomeHero();
+            SpawnBody(heroPrefab);
         }
 
     }
+
 }
