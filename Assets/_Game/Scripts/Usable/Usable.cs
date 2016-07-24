@@ -28,8 +28,8 @@ namespace BIG.IncredibleCityCrisis
         /// Called when a character uses this Usable. This is an abstract method
         /// that subclasses should implement.
         /// </summary>
-        /// <param name="user">The GameObject using the Usable.</param>
-        public abstract void UseBy(GameObject user);
+        /// <param name="body">The Body using the Usable.</param>
+        public abstract void UseBy(Body body);
 
     }
 }

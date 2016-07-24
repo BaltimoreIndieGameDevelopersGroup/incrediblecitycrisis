@@ -12,6 +12,8 @@ namespace BIG.IncredibleCityCrisis
     public class Bullet : MonoBehaviour
     {
 
+        public string[] hitsTags;
+
         public float minDamage = 10;
 
         public float maxDamage = 20;
@@ -41,11 +43,23 @@ namespace BIG.IncredibleCityCrisis
 
         protected virtual void OnCollisionEnter2D(Collision2D coll)
         {
-            //Debug: Debug.Log(name + " collided with " + coll.collider.name);
+            for (int i = 0; i < hitsTags.Length; i++)
+            {
+                if (string.Equals(hitsTags[i], coll.gameObject.tag))
+                {
+                    Hit(coll.gameObject);
+                }
+            }
+            Hit(coll.gameObject);
+        }
+
+        protected virtual void Hit(GameObject target)
+        { 
+            Debug.Log(name + " collided with " + target.name);
             Despawn();
             var damage = Random.Range(minDamage, maxDamage);
-            coll.gameObject.SendMessageUpwards(Messages.OnTakeDamage, new DamageInfo(damage, m_playerNumber), SendMessageOptions.DontRequireReceiver);
-            onCollision.Invoke(coll.gameObject);
+            target.SendMessageUpwards(Messages.OnTakeDamage, new DamageInfo(damage, m_playerNumber), SendMessageOptions.DontRequireReceiver);
+            onCollision.Invoke(target);
         }
 
     }

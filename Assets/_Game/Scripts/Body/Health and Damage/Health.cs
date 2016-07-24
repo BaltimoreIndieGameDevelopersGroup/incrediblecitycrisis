@@ -20,16 +20,19 @@ namespace BIG.IncredibleCityCrisis
 
         public void OnTakeDamage(DamageInfo damageInfo)
         {
-            Debug.Log(name + " taking " + damageInfo.damage + " damage from player " + damageInfo.fromPlayerNumber);
-            var newHealth = currentHealth - damageInfo.damage;
-            currentHealth = Mathf.Clamp(newHealth, 0, maxHealth);
-            var normalizedHealth = currentHealth / maxHealth;
-            onHealthChange.Invoke(normalizedHealth);
-            BroadcastMessage(Messages.OnHealthChange, normalizedHealth, SendMessageOptions.DontRequireReceiver);
-            if (currentHealth <= 0)
+            if (currentHealth > 0)
             {
-                onDie.Invoke();
-                BroadcastMessage(Messages.OnDie, damageInfo.fromPlayerNumber, SendMessageOptions.DontRequireReceiver);
+                Debug.Log(name + " taking " + damageInfo.damage + " damage from player " + damageInfo.fromPlayerNumber);
+                var newHealth = currentHealth - damageInfo.damage;
+                currentHealth = Mathf.Clamp(newHealth, 0, maxHealth);
+                var normalizedHealth = currentHealth / maxHealth;
+                onHealthChange.Invoke(normalizedHealth);
+                BroadcastMessage(Messages.OnHealthChange, normalizedHealth, SendMessageOptions.DontRequireReceiver);
+                if (currentHealth <= 0)
+                {
+                    onDie.Invoke();
+                    BroadcastMessage(Messages.OnDie, damageInfo.fromPlayerNumber, SendMessageOptions.DontRequireReceiver);
+                }
             }
         }
 

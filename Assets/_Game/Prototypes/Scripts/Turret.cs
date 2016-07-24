@@ -10,6 +10,7 @@ namespace BIG.IncredibleCityCrisis
     public class Turret : Body
     {
 
+        /*
         public string requiredTag = Tags.Enemy;
 
         public bool automaticEject = false;
@@ -60,6 +61,7 @@ namespace BIG.IncredibleCityCrisis
         {
             m_isAvailable = true;
         }
+        */
 
     }
 }

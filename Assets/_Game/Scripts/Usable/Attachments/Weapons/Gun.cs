@@ -18,9 +18,7 @@ namespace BIG.IncredibleCityCrisis
         [Tooltip("The force with which to launch the projectile.")]
         public float force = 500f;
 
-        private int m_playerNumber;
-
-        private void Awake()
+        protected override void Awake()
         {
             if (spawnPoint == null) spawnPoint = this.transform;
         }
@@ -30,7 +28,7 @@ namespace BIG.IncredibleCityCrisis
             base.Fire();
             var bullet = Instantiate(bulletPrefab, spawnPoint.position, spawnPoint.rotation) as Bullet;
             var velocity = force * fireDirection;
-            var playerNumber = (m_player != null) ? m_player.playerNumber : 0;
+            var playerNumber = 0; //[TODO]? (m_player != null) ? m_player.playerNumber : 0;
             bullet.Fire(velocity, playerNumber);
         }
 

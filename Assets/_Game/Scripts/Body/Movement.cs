@@ -27,18 +27,6 @@ namespace BIG.IncredibleCityCrisis
         private Animator m_animator;
         private VirtualInput m_input;
 
-        public virtual void OnAttachPlayer(Player player)
-        {
-            m_input = player.virtualInput;
-            aim = false;
-        }
-
-        public void OnDetachPlayer()
-        {
-            m_input = GetComponent<VirtualInput>();
-            UpdateAnimator(Vector2.zero);
-        }
-
         protected virtual void Awake()
         {
             m_rigidbody2D = GetComponent<Rigidbody2D>();

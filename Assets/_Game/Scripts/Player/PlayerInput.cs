@@ -4,9 +4,8 @@ namespace BIG.IncredibleCityCrisis
 {
 
     /// <summary>
-    /// Sets a VirtualInput component with inputs from a physical input device.
+    /// Sets a Body's VirtualInput component with inputs from a physical input device.
     /// </summary>
-    [RequireComponent(typeof(VirtualInput))]
     public class PlayerInput : MonoBehaviour
     {
 
@@ -17,18 +16,25 @@ namespace BIG.IncredibleCityCrisis
 
         private VirtualInput m_virtualInput;
 
-        void Awake()
+        public void OnAttachPlayer(PlayerBodyConnection connection)
         {
-            m_virtualInput = GetComponent<VirtualInput>();
-            if (m_virtualInput == null) Debug.LogError("No VirtualInput found on " + name, this);
+            m_virtualInput = (connection.body != null) ? connection.body.GetComponent<VirtualInput>() : null;
+        }
+
+        public void OnDetachPlayer(PlayerBodyConnection connection)
+        {
+            m_virtualInput = null;
         }
 
         void Update()
         {
-            m_virtualInput.move = new Vector2(Input.GetAxis(horizontalAxis), Input.GetAxis(verticalAxis));
-            m_virtualInput.useDown = Input.GetButtonDown(use);
-            m_virtualInput.primaryAttackDown = Input.GetButtonDown(primaryAttack);
-            m_virtualInput.primaryAttackHeld = Input.GetButton(primaryAttack);
+            if (m_virtualInput != null)
+            {
+                m_virtualInput.move = new Vector2(Input.GetAxis(horizontalAxis), Input.GetAxis(verticalAxis));
+                m_virtualInput.useDown = Input.GetButtonDown(use);
+                m_virtualInput.primaryAttackDown = Input.GetButtonDown(primaryAttack);
+                m_virtualInput.primaryAttackHeld = Input.GetButton(primaryAttack);
+            }
         }
     }
 }

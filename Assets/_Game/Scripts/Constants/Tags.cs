@@ -9,14 +9,20 @@
     public static class Tags
     {
 
-        // Hero body:
+        // The hero player position:
         public const string Hero = "Hero";
 
-        // Normal enemy body: (not a possessed body such as a mech)
+        // Survivors following the hero position:
+        public const string Survivor = "Survivor";
+
+        // Enemy players:
         public const string Enemy = "Enemy";
 
         // An item players can use:
         public const string Usable = "Usable";
+
+        // Buildings and walls:
+        public const string Environment = "Environment";
 
     }
 
