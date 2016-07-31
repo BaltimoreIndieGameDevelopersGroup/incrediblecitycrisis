@@ -29,8 +29,17 @@ namespace BIG.IncredibleCityCrisis
             yield return new WaitForSeconds(Random.value * fireRate); // (stagger enemies' fire)
             while (true)
             {
+                Hero hero;
                 yield return new WaitForSeconds(fireRate);
-                m_input.move = new Vector2(2 * Random.value - 1, 2 * Random.value - 1);
+                /* find hero player and aim at them*/
+                hero = FindObjectOfType<Hero>();
+
+                Transform targetTransform = hero.GetComponent<Transform>();
+                m_input.move = new Vector2 (targetTransform.position.x - transform.position.x, targetTransform.position.y - transform.position.y);
+
+                //Don't aim randomly anymore
+                //m_input.move = new Vector2(2 * Random.value - 1, 2 * Random.value - 1);
+                // 
                 m_input.primaryAttackDown = true;
                 m_input.primaryAttackHeld = true;
                 yield return null; // Wait 2 frames. The first frame starts the weapon power-up.
@@ -38,6 +47,8 @@ namespace BIG.IncredibleCityCrisis
                 m_input.move = Vector2.zero;
                 m_input.primaryAttackDown = false;
                 m_input.primaryAttackHeld = false;
+
+
             }
         }
 
