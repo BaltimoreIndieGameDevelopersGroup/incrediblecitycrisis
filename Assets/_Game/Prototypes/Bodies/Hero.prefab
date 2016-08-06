@@ -1085,8 +1085,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1939aec4149a1df49ab77753e3d2fd23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHorizontalSpeed: 8
-  maxVerticalSpeed: 5
+  maxHorizontalSpeed: 3
+  maxVerticalSpeed: 2
   facingLeft: 1
 --- !u!114 &11490074
 MonoBehaviour:
